@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SubTitleMe - Advanced Video Transcription</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #171f2e;
+        --bg-accent: #0d1525;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --accent-blue: #3b82f6;
+        --accent-cyan: #0ea5e9;
+        --accent-purple: #8b5cf6;
+        --highlight: #f59e0b;
+        --success: #10b981;
+        --error: #ef4444;
+        --border-radius: 6px;
+        --transition: all 0.2s ease;
+        --grid-line: rgba(99, 114, 153, 0.08);
+      }
+      h1{
+        margin-top: 10px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+        background-color: var(--bg-primary);
+        background-image: 
+          linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+        background-size: 20px 20px;
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      .navbar {
+        background-color: var(--bg-accent);
+        border-bottom: 1px solid rgba(99, 114, 153, 0.1);
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 100;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+      }
+
+      .navbar h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 16px;
+      }
+
+      .navbar a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        padding: 6px 12px;
+        border-radius: var(--border-radius);
+      }
+
+      .navbar a:hover {
+        color: var(--text-primary);
+        background-color: rgba(99, 114, 153, 0.1);
+      }
+
+      .container {
+        width: 100%;
+        max-width: 800px;
+        margin: 100px auto 40px;
+        padding: 0 20px;
+      }
+
+      .app-card {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(99, 114, 153, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .app-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+      }
+
+      .upload-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .upload-section {
+        background-color: var(--bg-accent);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        width: 100%;
+        max-width: 350px;
+        text-align: center;
+        border: 1px dashed rgba(99, 114, 153, 0.15);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .upload-section::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(99, 102, 241, 0.02));
+        pointer-events: none;
+      }
+
+      .upload-section:hover {
+        border-color: rgba(99, 114, 153, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .upload-icon {
+        background: rgba(59, 130, 246, 0.1);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        position: relative;
+        z-index: 1;
+      }
+
+      .upload-icon svg {
+        width: 24px;
+        height: 24px;
+        color: var(--accent-blue);
+        stroke-width: 2;
+      }
+
+      .upload-section p {
+        margin-bottom: 15px;
+        color: var(--text-secondary);
+      }
+
+      #fileName {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        margin: 10px 0;
+        color: var(--accent-cyan);
+        word-break: break-all;
+        max-width: 100%;
+        padding: 4px 8px;
+        background-color: rgba(14, 165, 233, 0.08);
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+        border: none;
+        font-family: 'Inter', system-ui, sans-serif;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .btn:hover::before {
+        transform: translateX(0);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+      }
+
+      .download-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: rgba(14, 165, 233, 0.1);
+        border: 1px solid rgba(14, 165, 233, 0.2);
+        border-radius: var(--border-radius);
+        color: var(--text-primary);
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        min-width: 180px;
+      }
+
+      .download-button:hover {
+        transform: translateY(-2px);
+        background: rgba(14, 165, 233, 0.15);
+        border-color: rgba(14, 165, 233, 0.3);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+      }
+
+      .download-button svg {
+        width: 18px;
+        height: 18px;
+        stroke-width: 2;
+      }
+
+      .download-button.vtt {
+        border-color: rgba(139, 92, 246, 0.2);
+        background: rgba(139, 92, 246, 0.1);
+      }
+
+      .download-button.vtt:hover {
+        background: rgba(139, 92, 246, 0.15);
+        border-color: rgba(139, 92, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+      }
+
+      .download-button.script {
+        border-color: rgba(16, 185, 129, 0.2);
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .download-button.script:hover {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+      }
+
+      .video-container {
+        margin-top: 20px;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(99, 114, 153, 0.1);
+        background-color: var(--bg-accent);
+        position: relative;
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+        background-color: #000;
+        display: none;
+        border-radius: 8px;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 15px;
+        opacity: 0;
+        transition: var(--transition);
+      }
+
+      .status-indicator.show {
+        opacity: 1;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--accent-cyan);
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.95);
+          opacity: 0.7;
+        }
+      }
+
+      .status-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--bg-secondary);
+        border: 1px solid rgba(99, 114, 153, 0.15);
+        border-radius: 12px;
+        padding: 28px;
+        width: 90%;
+        max-width: 500px;
+        text-align: left;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+      }
+
+      .popup-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(99, 114, 153, 0.1);
+      }
+
+      .popup-icon {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .popup-icon svg {
+        width: 20px;
+        height: 20px;
+        color: white;
+      }
+
+      .popup h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .instruction-step {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        align-items: flex-start;
+      }
+
+      .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 50%;
+        font-weight: 600;
+        color: var(--accent-blue);
+        flex-shrink: 0;
+      }
+
+      .step-content {
+        flex-grow: 1;
+      }
+
+      .step-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .step-description {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .popup-footer {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .popup-close {
+        background: rgba(99, 114, 153, 0.1);
+        color: var(--text-primary);
+        padding: 8px 20px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: 'Inter', system-ui, sans-serif;
+        transition: all 0.2s ease;
+      }
+
+      .popup-close:hover {
+        background: rgba(99, 114, 153, 0.2);
+      }
+
+      .transcription-container {
+        margin-top: 20px;
+        background-color: rgba(99, 114, 153, 0.08);
+        padding: 20px;
+        border-radius: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        text-align: left;
+        border: 1px solid rgba(99, 114, 153, 0.1);
+      }
+
+      .transcription-container span {
+        display: block;
+        padding: 5px 0;
+        transition: background-color 0.3s ease;
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      .transcription-container span.active {
+        background-color: rgba(245, 158, 11, 0.15);
+        color: var(--highlight);
+        padding-left: 10px;
+        border-left: 3px solid var(--highlight);
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(99, 114, 153, 0.08);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(99, 114, 153, 0.3);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 114, 153, 0.4);
+      }
+
+      /* Tech-inspired download section */
+      .download-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+        background-color: rgba(30, 41, 59, 0.5);
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid rgba(99, 114, 153, 0.1);
+        position: relative;
+      }
+
+      .download-section::before {
+        content: "Export Options";
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        background-color: var(--bg-secondary);
+        padding: 0 8px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      @media (max-width: 768px) {
+        .app-card {
+          padding: 25px 15px;
+        }
+        
+        .navbar {
+          padding: 12px 16px;
+        }
+        
+        h1 {
+          font-size: 1.6rem;
+        }
+        
+        .upload-section {
+          min-width: 280px;
+          padding: 25px 15px;
+        }
+
+        .download-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v8"></path>
+            <path d="M6.5 6.5l3.5 3.5"></path>
+            <path d="M2 12h8"></path>
+            <path d="M6.5 17.5l3.5-3.5"></path>
+            <path d="M12 22v-8"></path>
+            <path d="M17.5 17.5l-3.5-3.5"></path>
+            <path d="M22 12h-8"></path>
+            <path d="M17.5 6.5l-3.5 3.5"></path>
+          </svg>
+        </div>
+        <h1>SubTitleMe</h1>
+      </div>
+      <div class="nav-links">
+        <a href="#" id="homeBtn">Home</a>
+        <a href="#" id="howToUseBtn">How to Use</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="app-card">
+        <div class="header">
+          <h1>Transcribe Video to Text</h1>
+        </div>
+
+        <div class="upload-container">
+          <div class="upload-section">
+            <div class="upload-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <p>Upload your file</p>
+            <p id="fileName" style="display: none;"></p><br>
+            <input type="file" id="videoFile" accept="video/*" onchange="displayFileName()" />
+            <label for="videoFile" class="btn btn-primary">Choose File</label>
+            <br />
+            <button class="btn btn-primary" onclick="uploadFile()" style="margin-top: 15px;">
+              Upload
+            </button>
+            <div class="status-indicator" id="statusIndicator">
+              <div class="status-dot"></div>
+              <span class="status-text">Processing video...</span>
+            </div>
+          </div>
+        </div>
+        
+        
+
+        <div class="video-container">
+          <video id="videoPlayer" controls>
+            <track id="subtitleTrack" kind="subtitles" srclang="en" label="English" />
+          </video>
+        </div>
+        <!-- Updated Download Section -->
+        <div class="download-section" id="downloadSection" style="display: none;">
+            <button id="downloadVTT" class="download-button vtt">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download VTT Subtitles
+            </button>
+            <button id="downloadScript" class="download-button script">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              Download Full Script
+            </button>
+          </div>
+      </div>
+    </div>
+
+    <!-- Updated How to Use Popup -->
+    <div id="howToUsePopup" class="popup">
+      <div class="popup-header">
+        <div class="popup-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <h2>How to Use</h2>
+      </div>
+      
+      <div class="instruction-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Select Your Video</div>
+          <div class="step-description">Click "Choose File" to select a video file from your device.</div>
+        </div>
+      </div>
+      
+      <div class="instruction-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Upload for Processing</div>
+          <div class="step-description">Click "Upload" to begin the transcription process. </div>
+        </div>
+      </div>
+      
+      <div class="instruction-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Preview Subtitled Video</div>
+          <div class="step-description">Once processing is complete, play the video to see the integrated subtitles that automatically appear as the video plays.</div>
+        </div>
+      </div>
+      
+      <div class="instruction-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Download Your Files</div>
+          <div class="step-description">Download the VTT subtitle file for use with video players, or get the full script without timestamps for reference.</div>
+        </div>
+      </div>
+      
+      <div class="popup-footer">
+        <button class="btn btn-primary" onclick="closePopup()">Got it</button>
+      </div>
+    </div>
+
+    <script>
+      // Function to display file name and show video
+      function displayFileName() {
+        const fileInput = document.getElementById("videoFile");
+        const fileNameElement = document.getElementById("fileName");
+        const videoPlayer = document.getElementById("videoPlayer");
+
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          fileNameElement.textContent = file.name;
+          fileNameElement.style.display = "inline-block";
+          
+          // Create object URL for video
+          const fileUrl = URL.createObjectURL(file);
+          videoPlayer.src = fileUrl;
+          videoPlayer.style.display = "block";
+          
+          // Hide download section when new file is selected
+          document.getElementById("downloadSection").style.display = "none";
+        }
+      }
+
+      // Function to upload file (original logic preserved)
+      function uploadFile() {
+        const fileInput = document.getElementById("videoFile");
+        const statusIndicator = document.getElementById("statusIndicator");
+        
+        if (!fileInput.files.length) {
+          alert("Please select a file!");
+          return;
+        }
+
+        // Show processing indicator
+        statusIndicator.classList.add("show");
+        
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Using original fetch logic
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Hide processing indicator
+            statusIndicator.classList.remove("show");
+            
+            if (data.subtitle_url) {
+              const subtitleTrack = document.getElementById("subtitleTrack");
+              subtitleTrack.src = data.subtitle_url;
+              subtitleTrack.default = true;
+
+              // Show download section
+              document.getElementById("downloadSection").style.display = "flex";
+
+              // Set up button actions
+              document.getElementById("downloadVTT").onclick = function() {
+                window.location.href = data.download_vtt_url;
+              };
+
+              document.getElementById("downloadScript").onclick = function() {
+                window.location.href = data.download_script_url;
+              };
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            // Hide processing indicator on error
+            statusIndicator.classList.remove("show");
+            alert("Error processing the video. Please try again.");
+          });
+      }
+
+      // Function to populate transcription (preserved from original)
+      function populateTranscription(transcription) {
+        const transcriptionContainer = document.getElementById("transcription");
+        if (transcriptionContainer) {
+          transcriptionContainer.innerHTML = "";
+          transcription.forEach((chunk) => {
+            const span = document.createElement("span");
+            span.innerText = chunk.text;
+            span.setAttribute("data-start", chunk.timestamp[0]);
+            span.setAttribute("data-end", chunk.timestamp[1]);
+            transcriptionContainer.appendChild(span);
+          });
+        }
+      }
+
+      // Event listener for video time update (preserved from original)
+      document.addEventListener("DOMContentLoaded", function() {
+        const videoPlayer = document.getElementById("videoPlayer");
+        if (videoPlayer) {
+          videoPlayer.addEventListener("timeupdate", () => {
+            const currentTime = videoPlayer.currentTime;
+            const spans = document.querySelectorAll("#transcription span");
+
+            spans.forEach((span) => {
+              const start = parseFloat(span.getAttribute("data-start"));
+              const end = parseFloat(span.getAttribute("data-end"));
+              if (currentTime >= start && currentTime <= end) {
+                span.classList.add("active");
+              } else {
+                span.classList.remove("active");
+              }
+            });
+          });
+        }
+      });
+
+      // Popup functionality (preserved from original)
+      document.getElementById("howToUseBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        document.getElementById("howToUsePopup").style.display = "block";
+      });
+
+      function closePopup() {
+        document.getElementById("howToUsePopup").style.display = "none";
+      }
+      
+      // Home button functionality
+      document.getElementById("homeBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        location.reload();
+      });
+    </script>
+  </body>
+</html>
