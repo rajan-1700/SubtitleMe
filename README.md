@@ -1,1 +1,1 @@
-An automatice transcription system that genrates subtitles for the documentyr videos.
+An automatice transcription system that genrates subtitles for the documentry videos.
